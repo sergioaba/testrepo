@@ -1,0 +1,410 @@
+version: 0.2
+env:
+  shell: bash
+  variables:
+
+    StackEnvironment: "DE"
+    # Type: String
+    # Description: 'Clave del ambiente donde se esta haciendo el despliegue en mayusculas (ej. DE, Q, PD)'
+    # AllowedValues:
+    # - 'PD'
+    # - 'Q'
+    # - 'DE'
+
+    AppPrefix: "AMX-LMB-JS"
+    # Type: String
+    # Description: 'Prefijo del aplicativo de acuerdo a la nomenclatura de AMX en letras mayusculas (ej. AMX-APP)'
+    # Default: 'AMX-LAMBDA'
+
+    AppPrefixLower: "amx-lmb-js"
+    # Type: String
+    # Description: 'Prefijo del aplicativo de acuerdo a la nomenclatura de AMX en letras minusculas (ej. amx-app)'
+    # Default: 'amx-lambda'
+    # AllowedPattern: "^[a-z-]+$"
+
+    LambdaName: "AMX-LAMBDA-JS18"
+    # Type: String
+    # Description: 'Nombre de la lambda'
+    # Default: 'SAMPLE-LAMBDA'
+
+
+    # BlueGreenDeployment: "Si"
+    # Type: String
+    # Description: 'Specify weather or not blue and green is configured'
+    # Default: 'Si'
+    # AllowedValues:
+    # - 'SI'
+    # - 'NO'
+
+    BlueGreenDeploymentType: "Canary10Percent5Minutes"
+    # Type: String
+    # Description: 'Especificar el tipo de deployment para CodeDeploy (ej. AllAtOnce,Canary10Percent5Minutes,Linear10PercentEvery10Minutes) https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/automating-updates-to-serverless-apps.html'
+    # Default: 'AllAtOnce'
+
+
+    LambdaCodeUri: "sc-app/"
+    # Type: String
+    # Description: 'The code for the function path'
+    # Default: '/src/ServerlessExample/'
+
+    LambdaHandler: "app.lambdaHandler"
+    # Type: String
+    # Description: 'The name of the method within your code that Lambda calls to run your function'
+    # Default: 'ServerlessExample::ServerlessExample.Function::FunctionHandler'
+
+    LambdaRuntime: "nodejs18.x"
+    # Type: String
+    # Description: 'The identifier of the function's runtime'
+    # Default: 'dotnet6'
+
+    LambdaMemorySize: 256
+    # Type: Integer
+    # Description: 'The amount of memory available to the function at runtime.'
+    # Default: 256
+
+    LambdaAliasName: "dev"
+    # Type: String
+    # Description: 'The identifier of the function's runtime'
+    # Default: 'live'
+
+    #Tags
+
+    AreaResponsable: "Infraestrcutura"
+    # Type: String
+    # Description: Area responsable
+    # Default: Operaciones
+    # AllowedValues:
+    #   - "SolucionesCorporativas"
+    #   - "Comercial"
+    #   - "Operaciones"
+    #   - "CXLYL"
+    #   - "Infraestrcutura"
+    #   - "Seguridad"
+    #   - "BI"
+
+    CentroDeCosto: "010101"
+    # Type: String
+    # Description: Centro de Costos asociados a TI
+    # Default: "120101"
+
+    DuenoDeLaCuenta: "igonzalezsa@aeromexico.com"
+    # Type: String
+    # Description: Lista de distribucion asociada
+    # Default: "usuario@aeromexico.com"
+
+    Proyecto: "Infraestrcutura"
+    # Type: String
+    # Description: Nombre oficial de OU padre
+    # Default: "OPS"
+
+    Aplicacion: "LAM_JS18_DEMO"
+    # Type: String
+    # Description: Nombre de aplicacion oficial
+    # Default: "AMX_APP_DEMO"
+
+    ImpactoANegocio: "Tier4"
+    # Type: String
+    # Description: Impacto de negocio
+    # Default: "Tier0"
+    # AllowedValues:
+    #   - "Tier0"
+    #   - "Tier1"
+    #   - "Tier2"
+    #   - "Tier3"
+    #   - "Tier4"
+    
+    
+    CODEPIPELINE_JOB_ID: "${CODEBUILD_BUILD_ID}"
+
+    TIMEOUT: 3600  # Timeout de 1 hora en segundos
+    INTERVAL: 1  # Intervalo de 1 segundo
+    STATUS_DRAFT: -5
+    STATUS_SCHEDULED: -2
+    STATUS_REVIEW: 0
+    STATUS_PLANNING_IN_PROGRESS: 10
+    STATUS_PENDING_APPROVAL: 11
+    STATUS_IMPLEMENTATION_IN_PROGRESS: 13
+    STATUS_COMPLETED: 14
+    STATUS_CLOSED: 3
+    STATUS_CANCELED: 4
+    
+    
+    SNS_TOPIC_ARN: "arn:aws:sns:us-east-1:789358440886:change-velocity-integration-Notifications"
+
+
+  secrets-manager:
+    SN_DEVOPS_USER: "arn:aws:secretsmanager:us-east-1:789358440886:secret:SN_DEVOPS_USER-7uSl0Z"
+    SN_DEVOPS_PASSWORD: "arn:aws:secretsmanager:us-east-1:789358440886:secret:SN_DEVOPS_PASSWORD-Jl1yGV"
+    SN_DEVOPS_TOKEN: "arn:aws:secretsmanager:us-east-1:789358440886:secret:SN_DEVOPS_TOKEN-3TeAvG"
+    SN_INSTANCE_URL: "arn:aws:secretsmanager:us-east-1:789358440886:secret:SN_INSTANCE_URL-oE4L43"
+    SN_ORCHESTRATION_TOOL_ID: "arn:aws:secretsmanager:us-east-1:789358440886:secret:SN_ORCHESTRATION_TOOL_ID-gqIhIY"
+
+phases:
+  install:
+    runtime-versions:
+        nodejs: 18
+    commands:
+      - echo "Starting install phase"
+      - export BUILD_NUMBER=$(echo ${CODEBUILD_BUILD_ID} | cut -d':' -f2)
+      - echo $BUILD_NUMBER
+      - echo "install phase complete"
+  
+  pre_build:
+    commands:
+      - ls -l /tmp/
+      - CURRENT_TIMESTAMP=$(date +"%Y-%m-%d %H:%M:%S")
+      - u_account_id=$(aws sts get-caller-identity --query Account --output text)
+      - CODEBUILD_SOURCE_VERSION=$CODEBUILD_SOURCE_VERSION
+
+      - echo "Detectando información del commit y del autor"
+      - |
+        export u_environment=$(git symbolic-ref HEAD --short 2>/dev/null)
+        if [ "$u_environment" == "" ]; then
+          u_environment=$(git branch -a --contains HEAD | sed -n 2p | awk '{ printf $1 }')
+          u_environment=${u_environment#remotes/origin/}
+        fi
+        # Asigna el nombre esperado basado en el branch detectado
+        case "$u_environment" in
+          "main")
+            u_environment="Production Cloud"
+            ;;
+          "QA-integration")
+            u_environment="Testing Cloud"
+            ;;
+          "develop")
+            u_environment="Development Cloud"
+            ;;
+          *)
+            u_environment="Unknown Environment"  # Valor por defecto en caso de que el branch no coincida con los conocidos
+            ;;
+        esac
+
+        export u_environment
+      - u_commit_id=$(git rev-parse HEAD)
+      - u_owner=$(git show -s --format='%ae' $u_commit_id)
+      - description=$(git show -s --format='%s' $u_commit_id)
+      
+      # Imprimir detalles obtenidos
+      - echo "Fecha de ejecución del Build:$CURRENT_TIMESTAMP"
+      - echo "Account ID:$u_account_id"
+      - echo "Commit ID:$u_commit_id"
+      - echo "Author Email:$u_owner"
+      - echo "Commit Message:$description"
+      - echo "Branch Name:$u_environment"
+      - echo "=== Tags asociados al commit ==="
+      - TAGS=$(git tag --points-at $u_commit_id)
+      - |
+        if [ -z "$TAGS" ]; then
+          echo "Commit Tags: No tags found for this commit"
+        else
+          TAG_ARRAY=($TAGS)
+          if [ ${#TAG_ARRAY[@]} -eq 1 ]; then
+            echo "Commit Tags: ${TAG_ARRAY[0]}"
+          else
+            echo "Commit Tags: ${TAG_ARRAY[@]}"
+          fi
+        fi
+      # Extraer información del cambio
+      # Leer datos del archivo JSON usando jq
+      - u_change_category=$(jq -r '.change_details.u_change_category' deployment_info.json)
+      - u_change_subcategory=$(jq -r '.change_details.u_change_subcategory' deployment_info.json)
+      - reason=$(jq -r '.change_details.reason' deployment_info.json)
+      - u_business_approval=$(jq -r '.change_details.u_business_approval' deployment_info.json)
+      - u_proyecto=$(jq -r '.change_details.u_proyecto' deployment_info.json)
+      - u_risk_on_freeze=$(jq -r '.change_details.u_risk_on_freeze' deployment_info.json)
+      - u_risk_non_implement=$(jq -r '.change_details.u_risk_non_implement' deployment_info.json)
+      - u_rfc_dev=$(jq -r '.change_details.u_rfc_dev' deployment_info.json)
+      - u_rfc_test=$(jq -r '.change_details.u_rfc_test' deployment_info.json)
+      - u_impacto_negocio=$(jq -r '.change_details.u_impacto_negocio' deployment_info.json)
+      - u_tiempo=$(jq -r '.change_details.u_tiempo' deployment_info.json)
+      - u_impact_description=$(jq -r '.change_details.u_impact_description' deployment_info.json)
+      - u_noimpacto=$(jq -r '.change_details.u_noimpacto' deployment_info.json)
+      - justification=$(jq -r '.change_details.justification' deployment_info.json)
+      - short_description=$(jq -r '.change_details.short_description' deployment_info.json)
+      #- exit 1
+############################################################
+      - echo "Verificando si la Solicitud de Cambio existe en ServiceNow Change Velocity"
+      - |
+        RESPONSE=$(curl -s "$SN_INSTANCE_URL/api/now/table/change_request?sysparm_query=descriptionLIKE$CODEBUILD_SOURCE_VERSION&sysparm_fields=sys_id,state" \
+          --request GET \
+          --header "Accept:application/json" \
+          --user "$SN_DEVOPS_USER:$SN_DEVOPS_PASSWORD")
+        CHANGE_ID=$(echo "$RESPONSE" | jq -r '.result[0].sys_id')
+        CHANGE_STATE=$(echo "$RESPONSE" | jq -r '.result[0].state')
+        if [ "$CHANGE_ID" == "null" ] || [ -z "$CHANGE_ID" ]; then
+          echo "Creación de un nuevo Change Request en ServiceNow"
+          
+          # CHANGE REQUEST STATIC DATA
+          REQUESTED_BY="7b3873b097be4210f023f52ad053af57"
+          ASSIGNMENT_GROUP="cfcbad03d711110050f5edcb9e61038f"
+          PRIORITY="2"
+          
+          # CHANGE REQUEST JSON PAYLOAD
+          JSON_PAYLOAD=$(cat <<EOF
+        {
+          "requested_by": "$REQUESTED_BY",
+          "assignment_group": "$ASSIGNMENT_GROUP",
+          "priority": "$PRIORITY",
+          "description": "$description",
+          "u_change_category":"$u_change_category",
+          "u_change_subcategory":"$u_change_subcategory",
+          "reason":"$reason",
+          "u_business_approval":"$u_business_approval",
+          "u_proyecto":"$u_proyecto",
+          "u_risk_on_freeze":"$u_risk_on_freeze",
+          "u_risk_non_implement":"$u_risk_non_implement",
+          "u_rfc_dev":"$u_rfc_dev",
+          "u_rfc_test":"$u_rfc_test",
+          "u_impacto_negocio":"$u_impacto_negocio",
+          "u_tiempo":"$u_tiempo",
+          "u_impact_description":"$u_impact_description",
+          "u_noimpacto":"$u_noimpacto",
+          "justification":"$justification",
+          "u_account_id":"$u_account_id",
+          "u_commit_id":"884c61416a0e144a9e3ade4be9fdcbbac49a00da",
+          "u_environment":"$u_environment",
+          "u_owner":"$u_owner"
+        }
+        EOF
+          )
+
+          RESPONSE=$(curl -s "$SN_INSTANCE_URL/api/now/table/change_request" \
+            --request POST \
+            --header "Accept:application/json" \
+            --header "Content-Type:application/json" \
+            --user "$SN_DEVOPS_USER:$SN_DEVOPS_PASSWORD" \
+            --data "$JSON_PAYLOAD")
+
+          CHANGE_ID=$(echo "$RESPONSE" | jq -r '.result.sys_id')
+
+          if [ "$CHANGE_ID" == "null" ] || [ -z "$CHANGE_ID" ]; then
+              echo "Error al crear el Change Request. Respuesta completa de ServiceNow:"
+              echo "$RESPONSE" | jq .  # Muestra la respuesta en un formato legible si es JSON
+
+              # Envía un mensaje con más información del error a SNS
+              aws sns publish --topic-arn "$SNS_TOPIC_ARN" \
+                  --subject "Error al crear el Change Request" \
+                  --message "Error al crear el Change Request en ServiceNow. Detalles de respuesta: $RESPONSE"
+              exit 1
+          fi
+          echo "Change Request creado con el ID: $CHANGE_ID"
+          aws sns publish --topic-arn "$SNS_TOPIC_ARN" \
+              --subject "SE HA CREADO EL CHANGE REQUEST CORRECTAMENTE" \
+              --message "El Change Request con el ID $CHANGE_ID ha sido creado correctamente."
+        else
+          echo "Change Request con el ID: $CHANGE_ID ya existe y se encuentra en con estado: $CHANGE_STATE"
+        fi
+      - echo "El valor de CHANGE_ID es:$CHANGE_ID"
+############################################################
+      - echo "Monitoreando el estado del Change Request"
+      - |
+        STATUS=$STATUS_NEW
+        LAST_NOTIFIED_STATUS=""
+        START_TIME=$(date +%s)
+        while true; do
+          CURRENT_TIME=$(date +%s)
+          ELAPSED_TIME=$((CURRENT_TIME - START_TIME))
+          if [ "$ELAPSED_TIME" -ge "$TIMEOUT" ]; then
+            echo "Se ha agotado el tiempo de espera para la aprobación de la solicitud de cambio"
+            aws sns publish --topic-arn "$SNS_TOPIC_ARN" --subject "TIEMPO MAXIMO ALCANZADO" --message "El Change Request con ID $CHANGE_ID ha caducado. Se ha agotado el tiempo de espera para la aprobación de la solicitud de cambio"
+            exit 1
+          fi
+
+          RESPONSE=$(curl -s "$SN_INSTANCE_URL/api/now/table/change_request/$CHANGE_ID?sysparm_fields=state" \
+              --request GET \
+              --header "Accept:application/json" \
+              --user "$SN_DEVOPS_USER:$SN_DEVOPS_PASSWORD")
+          STATUS=$(echo "$RESPONSE" | jq -r '.result.state')
+          echo "Current status:$STATUS"
+
+          if [ "$STATUS" != "$LAST_NOTIFIED_STATUS" ]; then
+            LAST_NOTIFIED_STATUS="$STATUS"
+            case "$STATUS" in
+              "$STATUS_DRAFT")
+                echo "Change Request con estado "DRAFT""
+                aws sns publish --topic-arn "$SNS_TOPIC_ARN" --subject "SE HA CREADO EL CHANGE REQUEST CORRECTAMENTE" --message "El Change Request con el ID $CHANGE_ID ha sido creado correctamente."
+                ;;
+              "$STATUS_SCHEDULED")
+                echo "Change Request con estado "SCHEDULED""
+                aws sns publish --topic-arn "$SNS_TOPIC_ARN" --subject "EL CHANGE REQUEST HA CAMBIADO DE ESTADO A SCHEDULED" --message "El Change Request con ID $CHANGE_ID esta en la etapa de Programación."
+                ;;
+              "$STATUS_REVIEW")
+                echo "Change Request con estado "REVIEW""
+                aws sns publish --topic-arn "$SNS_TOPIC_ARN" --subject "EL CHANGE REQUEST HA CAMBIADO DE ESTADO A REVIEW" --message "El Change Request con ID $CHANGE_ID esta en la etapa de Revisado."
+                ;;
+              "$STATUS_PLANNING_IN_PROGRESS")
+                echo "Change Request con estado "PLANNING_IN_PROGRESS""
+                aws sns publish --topic-arn "$SNS_TOPIC_ARN" --subject "EL CHANGE REQUEST HA CAMBIADO DE ESTADO A PLANNING_IN_PROGRESS" --message "El Change Request con ID $CHANGE_ID esta en la etapa de Planificación en progreso."
+                ;;
+              "$STATUS_PENDING_APPROVAL")
+                echo "Change Request con estado "PENDING_APPROVAL""
+                aws sns publish --topic-arn "$SNS_TOPIC_ARN" --subject "EL CHANGE REQUEST HA CAMBIADO DE ESTADO A PENDING_APPROVAL" --message "El Change Request con ID $CHANGE_ID esta en la etapa de Aprobación Pendiente."
+                ;;
+              "$STATUS_IMPLEMENTATION_IN_PROGRESS")
+                echo "Change Request con estado "IMPLEMENTATION_IN_PROGRESS""
+                aws sns publish --topic-arn "$SNS_TOPIC_ARN" --subject "EL CHANGE REQUEST HA CAMBIADO DE ESTADO A IMPLEMENTATION_IN_PROGRESS" --message "El Change Request con ID $CHANGE_ID esta en la etapa de Implementación en progreso."
+                ;;
+              "$STATUS_COMPLETED")
+                echo "Change Request con estado "COMPLETED""
+                aws sns publish --topic-arn "$SNS_TOPIC_ARN" --subject "EL CHANGE REQUEST HA CAMBIADO DE ESTADO A COMPLETED" --message "El Change Request con ID $CHANGE_ID esta en la etapa de Completado."
+                ;;
+              "$STATUS_CLOSED")
+                echo "Change Request con estado Cerrado/Aprobado"
+                aws sns publish --topic-arn "$SNS_TOPIC_ARN" --subject "EL CHANGE REQUEST HA CAMBIADO DE ESTADO A CLOSED" --message "El Change Request con ID $CHANGE_ID esta en la etapa de Cerrado."
+                break
+                ;;
+              "$STATUS_CANCELED")
+                echo "Change Request en la etapa de Cancelado/Rechazado"
+                aws sns publish --topic-arn "$SNS_TOPIC_ARN" --subject "EL CHANGE REQUEST HA CAMBIADO DE ESTADO A CANCELED" --message "El Change Request con ID $CHANGE_ID esta en la etapa de Cancelado/Rechazado."
+                exit 1
+                ;;
+              *)
+                echo "Unknown status:$STATUS"
+                aws sns publish --topic-arn "$SNS_TOPIC_ARN" --subject "SE DESCONOCE EL ESTADO DEL CHANGE REQUEST" --message "El Change Request con ID $CHANGE_ID esta en una estapa desconocida:$STATUS."
+                ;;
+            esac
+          fi
+          sleep $INTERVAL
+        done
+
+  build:
+    commands:
+      # Compile our .NET code - the compiled assemblies will be delivered
+      # to the build sub-folder.
+      - cd $CODEBUILD_SRC_DIR_SourceAppArtifact/
+      - sam build -b build -t sam-template.yaml
+      # Package the compiled assemblies, upload to S3, and create a new
+      # CloudFormation template that uses the newly-generated Zip file.
+      - sam package -t build/template.yaml --s3-bucket $ARTIFACT_BUCKET --output-template-file packaged-template.yml
+
+  post_build:
+      commands:
+
+      # Using Sed command to build out parameter file to feed to the cloudformation template at time of deploy
+      - cd $CODEBUILD_SRC_DIR_SourceAppArtifact/
+      - sed -i 's/\$StackEnvironment\$/'${StackEnvironment}'/g' parameters.json
+      - sed -i 's/\$AppPrefix\$/'${AppPrefix}'/g' parameters.json
+      - sed -i 's/\$AppPrefixLower\$/'${AppPrefixLower}'/g' parameters.json
+      - sed -i 's/\$LambdaName\$/'${LambdaName}'/g' parameters.json
+      # - sed -i 's/\$BlueGreenDeployment\$/'${BlueGreenDeployment}'/g' parameters.json
+      - sed -i 's/\$BlueGreenDeploymentType\$/'${BlueGreenDeploymentType}'/g' parameters.json
+      - sed -i 's#\$LambdaCodeUri\$#'"${LambdaCodeUri}"'#g' parameters.json
+      - sed -i 's/\$LambdaHandler\$/'${LambdaHandler}'/g' parameters.json
+      - sed -i 's/\$LambdaRuntime\$/'${LambdaRuntime}'/g' parameters.json
+      - sed -i 's/\$LambdaMemorySize\$/'${LambdaMemorySize}'/g' parameters.json
+      - sed -i 's/\$LambdaAliasName\$/'${LambdaAliasName}'/g' parameters.json
+      - sed -i 's/\$AreaResponsable\$/'${AreaResponsable}'/g' parameters.json
+      - sed -i 's/\$CentroDeCosto\$/'${CentroDeCosto}'/g' parameters.json
+      - sed -i 's/\$DuenoDeLaCuenta\$/'${DuenoDeLaCuenta}'/g' parameters.json
+      - sed -i 's/\$Proyecto\$/'${Proyecto}'/g' parameters.json
+      - sed -i 's/\$Aplicacion\$/'${Aplicacion}'/g' parameters.json
+      - sed -i 's/\$ImpactoANegocio\$/'${ImpactoANegocio}'/g' parameters.json
+      # confirm parameters are correct
+      - cat parameters.json
+      - cat packaged-template.yml
+
+artifacts:
+  files:
+    - $CODEBUILD_SRC_DIR_SourceAppArtifact/packaged-template.yml
+    - $CODEBUILD_SRC_DIR_SourceAppArtifact/parameters.json
+  discard-paths: yes
