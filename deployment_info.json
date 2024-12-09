@@ -1,0 +1,20 @@
+{
+  "change_details": {
+    "u_change_category": "Instalar",
+    "u_change_subcategory": "Actualizacion de codigo",
+    "reason": "Business Requirements",
+    "u_business_approval": "Yes",
+    "u_proyecto": "No",
+    "u_risk_on_freeze": "Revisar puntualmente con el dueño de este cambio",
+    "u_risk_non_implement": "Revisar puntualmente con el dueño de este cambio",
+    "u_rfc_dev":"RFC1234",
+    "u_rfc_test":"RFC5678",
+    "u_impacto_negocio": "Si",
+    "u_tiempo": "30 minutos",
+    "u_impact_description": "Servicio XYZ estará inactivo",
+    "u_noimpacto": "Si habrá impacto",
+    "justification": "Mejora de rendimiento de la aplicación",
+    "short_description": "Commit para aplicacion",
+    "state": "0"
+  }
+}
