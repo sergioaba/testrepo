@@ -297,6 +297,7 @@ phases:
       - echo "El valor de CHANGE_ID es:$CHANGE_ID"
 ############################################################
       - echo "Monitoreando el estado del Change Request"
+      - echo "."
       - |
         STATUS=$STATUS_NEW
         LAST_NOTIFIED_STATUS=""
