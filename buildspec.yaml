@@ -297,76 +297,10 @@ phases:
       - echo "El valor de CHANGE_ID es:$CHANGE_ID"
 ############################################################
       - echo "Monitoreando el estado del Change Request"
-      - echo "."
       - |
-        STATUS=$STATUS_NEW
-        LAST_NOTIFIED_STATUS=""
-        START_TIME=$(date +%s)
-        while true; do
-          CURRENT_TIME=$(date +%s)
-          ELAPSED_TIME=$((CURRENT_TIME - START_TIME))
-          if [ "$ELAPSED_TIME" -ge "$TIMEOUT" ]; then
-            echo "Se ha agotado el tiempo de espera para la aprobación de la solicitud de cambio"
-            aws sns publish --topic-arn "$SNS_TOPIC_ARN" --subject "TIEMPO MAXIMO ALCANZADO" --message "El Change Request con ID $CHANGE_ID ha caducado. Se ha agotado el tiempo de espera para la aprobación de la solicitud de cambio"
-            exit 1
-          fi
+        RESPONSE=$(curl -s "https://td4n6kha0k.execute-api.us-west-2.amazonaws.com/default/StartStep?sys_id=$CHANGE_ID")
 
-          RESPONSE=$(curl -s "$SN_INSTANCE_URL/api/now/table/change_request/$CHANGE_ID?sysparm_fields=state" \
-              --request GET \
-              --header "Accept:application/json" \
-              --user "$SN_DEVOPS_USER:$SN_DEVOPS_PASSWORD")
-          STATUS=$(echo "$RESPONSE" | jq -r '.result.state')
-          echo "Current status:$STATUS"
-
-          if [ "$STATUS" != "$LAST_NOTIFIED_STATUS" ]; then
-            LAST_NOTIFIED_STATUS="$STATUS"
-            case "$STATUS" in
-              "$STATUS_DRAFT")
-                echo "Change Request con estado "DRAFT""
-                aws sns publish --topic-arn "$SNS_TOPIC_ARN" --subject "SE HA CREADO EL CHANGE REQUEST CORRECTAMENTE" --message "El Change Request con el ID $CHANGE_ID ha sido creado correctamente."
-                ;;
-              "$STATUS_SCHEDULED")
-                echo "Change Request con estado "SCHEDULED""
-                aws sns publish --topic-arn "$SNS_TOPIC_ARN" --subject "EL CHANGE REQUEST HA CAMBIADO DE ESTADO A SCHEDULED" --message "El Change Request con ID $CHANGE_ID esta en la etapa de Programación."
-                ;;
-              "$STATUS_REVIEW")
-                echo "Change Request con estado "REVIEW""
-                aws sns publish --topic-arn "$SNS_TOPIC_ARN" --subject "EL CHANGE REQUEST HA CAMBIADO DE ESTADO A REVIEW" --message "El Change Request con ID $CHANGE_ID esta en la etapa de Revisado."
-                ;;
-              "$STATUS_PLANNING_IN_PROGRESS")
-                echo "Change Request con estado "PLANNING_IN_PROGRESS""
-                aws sns publish --topic-arn "$SNS_TOPIC_ARN" --subject "EL CHANGE REQUEST HA CAMBIADO DE ESTADO A PLANNING_IN_PROGRESS" --message "El Change Request con ID $CHANGE_ID esta en la etapa de Planificación en progreso."
-                ;;
-              "$STATUS_PENDING_APPROVAL")
-                echo "Change Request con estado "PENDING_APPROVAL""
-                aws sns publish --topic-arn "$SNS_TOPIC_ARN" --subject "EL CHANGE REQUEST HA CAMBIADO DE ESTADO A PENDING_APPROVAL" --message "El Change Request con ID $CHANGE_ID esta en la etapa de Aprobación Pendiente."
-                ;;
-              "$STATUS_IMPLEMENTATION_IN_PROGRESS")
-                echo "Change Request con estado "IMPLEMENTATION_IN_PROGRESS""
-                aws sns publish --topic-arn "$SNS_TOPIC_ARN" --subject "EL CHANGE REQUEST HA CAMBIADO DE ESTADO A IMPLEMENTATION_IN_PROGRESS" --message "El Change Request con ID $CHANGE_ID esta en la etapa de Implementación en progreso."
-                ;;
-              "$STATUS_COMPLETED")
-                echo "Change Request con estado "COMPLETED""
-                aws sns publish --topic-arn "$SNS_TOPIC_ARN" --subject "EL CHANGE REQUEST HA CAMBIADO DE ESTADO A COMPLETED" --message "El Change Request con ID $CHANGE_ID esta en la etapa de Completado."
-                ;;
-              "$STATUS_CLOSED")
-                echo "Change Request con estado Cerrado/Aprobado"
-                aws sns publish --topic-arn "$SNS_TOPIC_ARN" --subject "EL CHANGE REQUEST HA CAMBIADO DE ESTADO A CLOSED" --message "El Change Request con ID $CHANGE_ID esta en la etapa de Cerrado."
-                break
-                ;;
-              "$STATUS_CANCELED")
-                echo "Change Request en la etapa de Cancelado/Rechazado"
-                aws sns publish --topic-arn "$SNS_TOPIC_ARN" --subject "EL CHANGE REQUEST HA CAMBIADO DE ESTADO A CANCELED" --message "El Change Request con ID $CHANGE_ID esta en la etapa de Cancelado/Rechazado."
-                exit 1
-                ;;
-              *)
-                echo "Unknown status:$STATUS"
-                aws sns publish --topic-arn "$SNS_TOPIC_ARN" --subject "SE DESCONOCE EL ESTADO DEL CHANGE REQUEST" --message "El Change Request con ID $CHANGE_ID esta en una estapa desconocida:$STATUS."
-                ;;
-            esac
-          fi
-          sleep $INTERVAL
-        done
+        echo $RESPONSE
 
   build:
     commands:
