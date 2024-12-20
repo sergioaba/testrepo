@@ -129,15 +129,15 @@ env:
     STATUS_CANCELED: 4
     
     
-    SNS_TOPIC_ARN: "arn:aws:sns:us-east-1:789358440886:change-velocity-integration-Notifications"
+    # SNS_TOPIC_ARN: "arn:aws:sns:us-east-1:789358440886:change-velocity-integration-Notifications"
 
 
   secrets-manager:
-    SN_DEVOPS_USER: "arn:aws:secretsmanager:us-east-1:789358440886:secret:SN_DEVOPS_USER-7uSl0Z"
-    SN_DEVOPS_PASSWORD: "arn:aws:secretsmanager:us-east-1:789358440886:secret:SN_DEVOPS_PASSWORD-Jl1yGV"
-    SN_DEVOPS_TOKEN: "arn:aws:secretsmanager:us-east-1:789358440886:secret:SN_DEVOPS_TOKEN-3TeAvG"
-    SN_INSTANCE_URL: "arn:aws:secretsmanager:us-east-1:789358440886:secret:SN_INSTANCE_URL-oE4L43"
-    SN_ORCHESTRATION_TOOL_ID: "arn:aws:secretsmanager:us-east-1:789358440886:secret:SN_ORCHESTRATION_TOOL_ID-gqIhIY"
+    SN_DEVOPS_USER: "arn:aws:secretsmanager:us-west-2:757508075510:secret:SN_DEVOPS_USER-SHOCSI"
+    SN_DEVOPS_PASSWORD: "arn:aws:secretsmanager:us-west-2:757508075510:secret:SN_DEVOPS_PASSWORD-XZCpv3"
+    SN_DEVOPS_TOKEN: "arn:aws:secretsmanager:us-west-2:757508075510:secret:SN_DEVOPS_TOKEN-9JCn4V"
+    SN_INSTANCE_URL: "arn:aws:secretsmanager:us-west-2:757508075510:secret:SN_INSTANCE_URL-EMVrFf"
+    # SN_ORCHESTRATION_TOOL_ID: "arn:aws:secretsmanager:us-east-1:789358440886:secret:SN_ORCHESTRATION_TOOL_ID-gqIhIY"
 
 phases:
   install:
