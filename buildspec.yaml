@@ -233,8 +233,8 @@ phases:
           --user "$SN_DEVOPS_USER:$SN_DEVOPS_PASSWORD")
 
         echo $RESPONSE
-#         CHANGE_ID=$(echo "$RESPONSE" | jq -r '.result[0].sys_id')
-#         CHANGE_STATE=$(echo "$RESPONSE" | jq -r '.result[0].state')
+        #         CHANGE_ID=$(echo "$RESPONSE" | jq -r '.result[0].sys_id')
+        #         CHANGE_STATE=$(echo "$RESPONSE" | jq -r '.result[0].state')
         CHANGE_ID=""
         CHANGE_STATE=""
         if [ "$CHANGE_ID" == "null" ] || [ -z "$CHANGE_ID" ]; then
