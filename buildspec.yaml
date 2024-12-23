@@ -182,7 +182,7 @@ phases:
         export u_environment
       - u_commit_id=$(git rev-parse HEAD)
       - u_owner=$(git show -s --format='%ae' $u_commit_id)
-      - description=$(git show -s --format='%s' $u_commit_id)
+      - description=$(git show -s --format='%s' $u_commit_id) #Se extrae el commit_id y se usa para la descripcion del RFC cuando se crea.
       
       # Imprimir detalles obtenidos
       - echo "Fecha de ejecución del Build:$CURRENT_TIMESTAMP"
@@ -222,76 +222,61 @@ phases:
       - justification=$(jq -r '.change_details.justification' deployment_info.json)
       - short_description=$(jq -r '.change_details.short_description' deployment_info.json)
       - state=$(jq -r '.change_details.state' deployment_info.json)
-      - |
-        echo $u_change_category
-        echo $u_change_subcategory
-        echo $reason
-        echo $u_business_approval
-        echo $u_proyecto
-        echo $u_risk_on_freeze
-        echo $u_risk_non_implement
-        echo $u_rfc_dev
-        echo $u_rfc_test
-        echo $u_impacto_negocio
-        echo $u_tiempo
-        echo $u_impact_description
-        echo $u_noimpacto
-        echo $justification
-        echo $short_description
-        echo $CODEBUILD_SOURCE_VERSION
 
       #- exit 1
 ############################################################
-########## NO SE HA PROBADO A PARTIR DE AQUI ###########
-#       - echo "Verificando si la Solicitud de Cambio existe en ServiceNow Change Velocity"
-#       - |
-#         RESPONSE=$(curl -s "$SN_INSTANCE_URL/api/now/table/change_request?sysparm_query=descriptionLIKE$CODEBUILD_SOURCE_VERSION&sysparm_fields=sys_id,state" \
-#           --request GET \
-#           --header "Accept:application/json" \
-#           --user "$SN_DEVOPS_USER:$SN_DEVOPS_PASSWORD")
+      - echo "Verificando si la Solicitud de Cambio existe en ServiceNow Change Velocity"
+      - |
+        # CODEBUILD_SOURCE_VERSION es la descripcion del commit hecho en github
+        # El siguiente RESPONSE busca el cambio por la descripcion la cual es la mimsma que se hizo en el commit
+        RESPONSE=$(curl -s "$SN_INSTANCE_URL/api/now/table/change_request?sysparm_query=descriptionLIKE$CODEBUILD_SOURCE_VERSION&sysparm_fields=sys_id,state" \
+          --request GET \
+          --header "Accept:application/json" \
+          --user "$SN_DEVOPS_USER:$SN_DEVOPS_PASSWORD")
 
-#         echo $RESPONSE
-# #         CHANGE_ID=$(echo "$RESPONSE" | jq -r '.result[0].sys_id')
-# #         CHANGE_STATE=$(echo "$RESPONSE" | jq -r '.result[0].state')
-#         CHANGE_ID=""
-#         CHANGE_STATE=""
-#         if [ "$CHANGE_ID" == "null" ] || [ -z "$CHANGE_ID" ]; then
-#           echo "Creación de un nuevo Change Request en ServiceNow"
+        echo $RESPONSE
+#         CHANGE_ID=$(echo "$RESPONSE" | jq -r '.result[0].sys_id')
+#         CHANGE_STATE=$(echo "$RESPONSE" | jq -r '.result[0].state')
+        CHANGE_ID=""
+        CHANGE_STATE=""
+        if [ "$CHANGE_ID" == "null" ] || [ -z "$CHANGE_ID" ]; then
+          echo "Creación de un nuevo Change Request en ServiceNow"
           
-#           # CHANGE REQUEST STATIC DATA
-#           REQUESTED_BY="7b3873b097be4210f023f52ad053af57"
-#           ASSIGNMENT_GROUP="cfcbad03d711110050f5edcb9e61038f"
-#           PRIORITY="2"
+          # CHANGE REQUEST STATIC DATA
+          REQUESTED_BY="7b3873b097be4210f023f52ad053af57"
+          ASSIGNMENT_GROUP="cfcbad03d711110050f5edcb9e61038f"
+          PRIORITY="2"
           
-#           # CHANGE REQUEST JSON PAYLOAD
-#           JSON_PAYLOAD=$(cat <<EOF
-#         {
-#           "requested_by": "$REQUESTED_BY",
-#           "assignment_group": "$ASSIGNMENT_GROUP",
-#           "priority": "$PRIORITY",
-#           "description": "$description",
-#           "u_change_category":"$u_change_category",
-#           "u_change_subcategory":"$u_change_subcategory",
-#           "reason":"$reason",
-#           "u_business_approval":"$u_business_approval",
-#           "u_proyecto":"$u_proyecto",
-#           "u_risk_on_freeze":"$u_risk_on_freeze",
-#           "u_risk_non_implement":"$u_risk_non_implement",
-#           "u_rfc_dev":"$u_rfc_dev",
-#           "u_rfc_test":"$u_rfc_test",
-#           "u_impacto_negocio":"$u_impacto_negocio",
-#           "u_tiempo":"$u_tiempo",
-#           "u_impact_description":"$u_impact_description",
-#           "u_noimpacto":"$u_noimpacto",
-#           "justification":"$justification",
-#           "u_account_id":"$u_account_id",
-#           "u_commit_id":"884c61416a0e144a9e3ade4be9fdcbbac49a00da",
-#           "u_environment":"$u_environment",
-#           "u_owner":"$u_owner"
-#         }
-#         EOF
-#           )
+          # CHANGE REQUEST JSON PAYLOAD
+          JSON_PAYLOAD=$(cat <<EOF
+        {
+          "requested_by": "$REQUESTED_BY",
+          "assignment_group": "$ASSIGNMENT_GROUP",
+          "priority": "$PRIORITY",
+          "description": "$description",
+          "u_change_category":"$u_change_category",
+          "u_change_subcategory":"$u_change_subcategory",
+          "reason":"$reason",
+          "u_business_approval":"$u_business_approval",
+          "u_proyecto":"$u_proyecto",
+          "u_risk_on_freeze":"$u_risk_on_freeze",
+          "u_risk_non_implement":"$u_risk_non_implement",
+          "u_rfc_dev":"$u_rfc_dev",
+          "u_rfc_test":"$u_rfc_test",
+          "u_impacto_negocio":"$u_impacto_negocio",
+          "u_tiempo":"$u_tiempo",
+          "u_impact_description":"$u_impact_description",
+          "u_noimpacto":"$u_noimpacto",
+          "justification":"$justification",
+          "u_account_id":"$u_account_id",
+          "u_commit_id":"884c61416a0e144a9e3ade4be9fdcbbac49a00da",
+          "u_environment":"$u_environment",
+          "u_owner":"$u_owner"
+        }
+        EOF
+          )
 
+          echo JSON_PAYLOAD
 #           RESPONSE=$(curl -s "$SN_INSTANCE_URL/api/now/table/change_request" \
 #             --request POST \
 #             --header "Accept:application/json" \
