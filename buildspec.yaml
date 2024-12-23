@@ -239,41 +239,32 @@ phases:
           JSON_PAYLOAD=$(cat<<EOF
           {
             "requested_by": "$REQUESTED_BY",
-            "assignment_group": "$ASSIGNMENT_GROUP"
+            "assignment_group": "$ASSIGNMENT_GROUP",
+            "priority": "$PRIORITY",
+            "description": "$description",
+            "u_change_category":"$u_change_category",
+            "u_change_subcategory":"$u_change_subcategory",
+            "reason":"$reason",
+            "u_business_approval":"$u_business_approval",
+            "u_proyecto":"$u_proyecto",
+            "u_risk_on_freeze":"$u_risk_on_freeze",
+            "u_risk_non_implement":"$u_risk_non_implement",
+            "u_rfc_dev":"$u_rfc_dev",
+            "u_rfc_test":"$u_rfc_test",
+            "u_impacto_negocio":"$u_impacto_negocio",
+            "u_tiempo":"$u_tiempo",
+            "u_impact_description":"$u_impact_description",
+            "u_noimpacto":"$u_noimpacto",
+            "justification":"$justification",
+            "u_account_id":"$u_account_id",
+            "u_commit_id":"884c61416a0e144a9e3ade4be9fdcbbac49a00da",
+            "u_environment":"$u_environment",
+            "u_owner":"$u_owner"
           }
         EOF
           )
           echo "$JSON_PAYLOAD"
         fi 
-          
-#           # CHANGE REQUEST JSON PAYLOAD
-#           JSON_PAYLOAD=$(cat <<EOF
-#         {
-#           "requested_by": "$REQUESTED_BY",
-#           "assignment_group": "$ASSIGNMENT_GROUP",
-#           "priority": "$PRIORITY",
-#           "description": "$description",
-#           "u_change_category":"$u_change_category",
-#           "u_change_subcategory":"$u_change_subcategory",
-#           "reason":"$reason",
-#           "u_business_approval":"$u_business_approval",
-#           "u_proyecto":"$u_proyecto",
-#           "u_risk_on_freeze":"$u_risk_on_freeze",
-#           "u_risk_non_implement":"$u_risk_non_implement",
-#           "u_rfc_dev":"$u_rfc_dev",
-#           "u_rfc_test":"$u_rfc_test",
-#           "u_impacto_negocio":"$u_impacto_negocio",
-#           "u_tiempo":"$u_tiempo",
-#           "u_impact_description":"$u_impact_description",
-#           "u_noimpacto":"$u_noimpacto",
-#           "justification":"$justification",
-#           "u_account_id":"$u_account_id",
-#           "u_commit_id":"884c61416a0e144a9e3ade4be9fdcbbac49a00da",
-#           "u_environment":"$u_environment",
-#           "u_owner":"$u_owner"
-#         }
-#         EOF
-#           )
 
 #           echo $JSON_PAYLOAD
 # #           RESPONSE=$(curl -s "$SN_INSTANCE_URL/api/now/table/change_request" \
