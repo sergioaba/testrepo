@@ -227,8 +227,6 @@ phases:
 ############################################################
       - echo "Verificando si la Solicitud de Cambio existe en ServiceNow Change Velocity"
       - |
-        # CODEBUILD_SOURCE_VERSION es la descripcion del commit hecho en github
-        # El siguiente RESPONSE busca el cambio por la descripcion la cual es la mimsma que se hizo en el commit
         RESPONSE=$(curl -s "$SN_INSTANCE_URL/api/now/table/change_request?sysparm_query=descriptionLIKE$CODEBUILD_SOURCE_VERSION&sysparm_fields=sys_id,state" \
           --request GET \
           --header "Accept:application/json" \
