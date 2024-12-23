@@ -241,7 +241,7 @@ phases:
             "requested_by": "$REQUESTED_BY",
             "assignment_group": "$ASSIGNMENT_GROUP"
           }
-          EOF
+        EOF
           )
           echo "$JSON_PAYLOAD"
         fi 
