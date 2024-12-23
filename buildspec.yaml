@@ -222,21 +222,21 @@ phases:
       - justification=$(jq -r '.change_details.justification' deployment_info.json)
       - short_description=$(jq -r '.change_details.short_description' deployment_info.json)
       - |
-        echo u_change_category
-        echo u_change_subcategory
-        echo reason
-        echo u_business_approval
-        echo u_proyecto
-        echo u_risk_on_freeze
-        echo u_risk_non_implement
-        echo u_rfc_dev
-        echo u_rfc_test
-        echo u_impacto_negocio
-        echo u_tiempo
-        echo u_impact_description
-        echo u_noimpacto
-        echo justification
-        echo short_description
+        echo $u_change_category
+        echo $u_change_subcategory
+        echo $reason
+        echo $u_business_approval
+        echo $u_proyecto
+        echo $u_risk_on_freeze
+        echo $u_risk_non_implement
+        echo $u_rfc_dev
+        echo $u_rfc_test
+        echo $u_impacto_negocio
+        echo $u_tiempo
+        echo $u_impact_description
+        echo $u_noimpacto
+        echo $justification
+        echo $short_description
 
       #- exit 1
 ############################################################
