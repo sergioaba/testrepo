@@ -229,8 +229,9 @@ phases:
       - CHANGE_ID=""
       - CHANGE_STATE=""
       - |
-        if [ "$CHANGE_ID" == "null" ] || [ -z "$CHANGE_ID" ]; then
+        if [ -z "$CHANGE_ID" ]; then
           echo "Creación de un nuevo Change Request en ServiceNow"
+        fi
           
 #           # CHANGE REQUEST STATIC DATA
 #           REQUESTED_BY="7b3873b097be4210f023f52ad053af57"
