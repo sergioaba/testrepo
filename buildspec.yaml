@@ -238,8 +238,8 @@ phases:
           # CHANGE REQUEST JSON PAYLOAD
           JSON_PAYLOAD=$(cat <<EOF
           {
-            "requested_by": "$REQUESTED_BY",
-            "assignment_group": "$ASSIGNMENT_GROUP"
+            "requested_by": "\$REQUESTED_BY",
+            "assignment_group": "\$ASSIGNMENT_GROUP"
           }
           EOF
           )
