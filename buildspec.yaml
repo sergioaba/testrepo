@@ -238,19 +238,23 @@ phases:
         echo $u_noimpacto
         echo $justification
         echo $short_description
+        echo $CODEBUILD_SOURCE_VERSION
 
       #- exit 1
 ############################################################
-      - echo "Verificando si la Solicitud de Cambio existe en ServiceNow Change Velocity"
-      - |
-        RESPONSE=$(curl -s "$SN_INSTANCE_URL/api/now/table/change_request?sysparm_query=descriptionLIKE$CODEBUILD_SOURCE_VERSION&sysparm_fields=sys_id,state" \
-          --request GET \
-          --header "Accept:application/json" \
-          --user "$SN_DEVOPS_USER:$SN_DEVOPS_PASSWORD")
+########## NO SE HA PROBADO A PARTIR DE AQUI ###########
+#       - echo "Verificando si la Solicitud de Cambio existe en ServiceNow Change Velocity"
+#       - |
+#         RESPONSE=$(curl -s "$SN_INSTANCE_URL/api/now/table/change_request?sysparm_query=descriptionLIKE$CODEBUILD_SOURCE_VERSION&sysparm_fields=sys_id,state" \
+#           --request GET \
+#           --header "Accept:application/json" \
+#           --user "$SN_DEVOPS_USER:$SN_DEVOPS_PASSWORD")
 
-        echo $RESPONSE
-#         CHANGE_ID=$(echo "$RESPONSE" | jq -r '.result[0].sys_id')
-#         CHANGE_STATE=$(echo "$RESPONSE" | jq -r '.result[0].state')
+#         echo $RESPONSE
+# #         CHANGE_ID=$(echo "$RESPONSE" | jq -r '.result[0].sys_id')
+# #         CHANGE_STATE=$(echo "$RESPONSE" | jq -r '.result[0].state')
+#         CHANGE_ID=""
+#         CHANGE_STATE=""
 #         if [ "$CHANGE_ID" == "null" ] || [ -z "$CHANGE_ID" ]; then
 #           echo "Creación de un nuevo Change Request en ServiceNow"
           
