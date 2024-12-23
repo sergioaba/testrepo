@@ -229,7 +229,7 @@ phases:
       - CHANGE_ID=""
       - CHANGE_STATE=""
       - |
-        if [ "$CHANGE_ID" == "null" ] || [ -z "$CHANGE_ID" ]; then
+        if [ -z "$CHANGE_ID" ]; then
           echo "Creación de un nuevo Change Request en ServiceNow"
           
           # CHANGE REQUEST STATIC DATA
@@ -265,7 +265,9 @@ phases:
           }
           EOF
           )
+
           echo $JSON_PAYLOAD
+
         fi
 
 #           RESPONSE=$(curl -s "$SN_INSTANCE_URL/api/now/table/change_request" \
