@@ -276,7 +276,7 @@ phases:
         EOF
           )
 
-          echo JSON_PAYLOAD
+          echo $JSON_PAYLOAD
 #           RESPONSE=$(curl -s "$SN_INSTANCE_URL/api/now/table/change_request" \
 #             --request POST \
 #             --header "Accept:application/json" \
