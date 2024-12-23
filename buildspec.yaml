@@ -221,6 +221,7 @@ phases:
       - u_noimpacto=$(jq -r '.change_details.u_noimpacto' deployment_info.json)
       - justification=$(jq -r '.change_details.justification' deployment_info.json)
       - short_description=$(jq -r '.change_details.short_description' deployment_info.json)
+      - state=$(jq -r '.change_details.state' deployment_info.json)
       - |
         echo $u_change_category
         echo $u_change_subcategory
@@ -240,12 +241,14 @@ phases:
 
       #- exit 1
 ############################################################
-      # - echo "Verificando si la Solicitud de Cambio existe en ServiceNow Change Velocity"
-#       - |
-#         RESPONSE=$(curl -s "$SN_INSTANCE_URL/api/now/table/change_request?sysparm_query=descriptionLIKE$CODEBUILD_SOURCE_VERSION&sysparm_fields=sys_id,state" \
-#           --request GET \
-#           --header "Accept:application/json" \
-#           --user "$SN_DEVOPS_USER:$SN_DEVOPS_PASSWORD")
+      - echo "Verificando si la Solicitud de Cambio existe en ServiceNow Change Velocity"
+      - |
+        RESPONSE=$(curl -s "$SN_INSTANCE_URL/api/now/table/change_request?sysparm_query=descriptionLIKE$CODEBUILD_SOURCE_VERSION&sysparm_fields=sys_id,state" \
+          --request GET \
+          --header "Accept:application/json" \
+          --user "$SN_DEVOPS_USER:$SN_DEVOPS_PASSWORD")
+
+        echo $RESPONSE
 #         CHANGE_ID=$(echo "$RESPONSE" | jq -r '.result[0].sys_id')
 #         CHANGE_STATE=$(echo "$RESPONSE" | jq -r '.result[0].state')
 #         if [ "$CHANGE_ID" == "null" ] || [ -z "$CHANGE_ID" ]; then
