@@ -231,47 +231,44 @@ phases:
       - |
         if [ -z "$CHANGE_ID" ]; then
           echo "Creación de un nuevo Change Request en ServiceNow"
+        fi 
           
-          # CHANGE REQUEST STATIC DATA
-          REQUESTED_BY="7b3873b097be4210f023f52ad053af57"
-          ASSIGNMENT_GROUP="cfcbad03d711110050f5edcb9e61038f"
-          PRIORITY="2"
+#           # CHANGE REQUEST STATIC DATA
+#           REQUESTED_BY="7b3873b097be4210f023f52ad053af57"
+#           ASSIGNMENT_GROUP="cfcbad03d711110050f5edcb9e61038f"
+#           PRIORITY="2"
           
-          # CHANGE REQUEST JSON PAYLOAD
-          JSON_PAYLOAD=$(cat <<EOF
-          {
-          "requested_by": "$REQUESTED_BY",
-          "assignment_group": "$ASSIGNMENT_GROUP",
-          "priority": "$PRIORITY",
-          "description": "$description",
-          "u_change_category":"$u_change_category",
-          "u_change_subcategory":"$u_change_subcategory",
-          "reason":"$reason",
-          "u_business_approval":"$u_business_approval",
-          "u_proyecto":"$u_proyecto",
-          "u_risk_on_freeze":"$u_risk_on_freeze",
-          "u_risk_non_implement":"$u_risk_non_implement",
-          "u_rfc_dev":"$u_rfc_dev",
-          "u_rfc_test":"$u_rfc_test",
-          "u_impacto_negocio":"$u_impacto_negocio",
-          "u_tiempo":"$u_tiempo",
-          "u_impact_description":"$u_impact_description",
-          "u_noimpacto":"$u_noimpacto",
-          "justification":"$justification",
-          "u_account_id":"$u_account_id",
-          "u_commit_id":"884c61416a0e144a9e3ade4be9fdcbbac49a00da",
-          "u_environment":"$u_environment",
-          "u_owner":"$u_owner"
-          }
-          EOF
-          )
-          echo $JSON_PAYLOAD
-        else
-          echo "ERROR"
+#           # CHANGE REQUEST JSON PAYLOAD
+#           JSON_PAYLOAD=$(cat <<EOF
+#         {
+#           "requested_by": "$REQUESTED_BY",
+#           "assignment_group": "$ASSIGNMENT_GROUP",
+#           "priority": "$PRIORITY",
+#           "description": "$description",
+#           "u_change_category":"$u_change_category",
+#           "u_change_subcategory":"$u_change_subcategory",
+#           "reason":"$reason",
+#           "u_business_approval":"$u_business_approval",
+#           "u_proyecto":"$u_proyecto",
+#           "u_risk_on_freeze":"$u_risk_on_freeze",
+#           "u_risk_non_implement":"$u_risk_non_implement",
+#           "u_rfc_dev":"$u_rfc_dev",
+#           "u_rfc_test":"$u_rfc_test",
+#           "u_impacto_negocio":"$u_impacto_negocio",
+#           "u_tiempo":"$u_tiempo",
+#           "u_impact_description":"$u_impact_description",
+#           "u_noimpacto":"$u_noimpacto",
+#           "justification":"$justification",
+#           "u_account_id":"$u_account_id",
+#           "u_commit_id":"884c61416a0e144a9e3ade4be9fdcbbac49a00da",
+#           "u_environment":"$u_environment",
+#           "u_owner":"$u_owner"
+#         }
+#         EOF
+#           )
 
-        fi
-
-#           RESPONSE=$(curl -s "$SN_INSTANCE_URL/api/now/table/change_request" \
+#           echo $JSON_PAYLOAD
+# #           RESPONSE=$(curl -s "$SN_INSTANCE_URL/api/now/table/change_request" \
 #             --request POST \
 #             --header "Accept:application/json" \
 #             --header "Content-Type:application/json" \
@@ -298,7 +295,7 @@ phases:
 #           echo "Change Request con el ID: $CHANGE_ID ya existe y se encuentra en con estado: $CHANGE_STATE"
 #         fi
 #       - echo "El valor de CHANGE_ID es:$CHANGE_ID"
-# # ############################################################
+# ############################################################
 #       - echo "Monitoreando el estado del Change Request"
 #       - |
 #         STATUS=$STATUS_NEW
