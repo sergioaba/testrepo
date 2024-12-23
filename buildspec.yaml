@@ -129,7 +129,7 @@ env:
     STATUS_CANCELED: 4
     
     
-    # SNS_TOPIC_ARN: "arn:aws:sns:us-east-1:789358440886:change-velocity-integration-Notifications"
+    SNS_TOPIC_ARN: "arn:aws:sns:us-east-1:789358440886:change-velocity-integration-Notifications"
 
 
   secrets-manager:
@@ -221,86 +221,169 @@ phases:
       - u_noimpacto=$(jq -r '.change_details.u_noimpacto' deployment_info.json)
       - justification=$(jq -r '.change_details.justification' deployment_info.json)
       - short_description=$(jq -r '.change_details.short_description' deployment_info.json)
+      - |
+        echo u_change_category
+        echo u_change_subcategory
+        echo reason
+        echo u_business_approval
+        echo u_proyecto
+        echo u_risk_on_freeze
+        echo u_risk_non_implement
+        echo u_rfc_dev
+        echo u_rfc_test
+        echo u_impacto_negocio
+        echo u_tiempo
+        echo u_impact_description
+        echo u_noimpacto
+        echo justification
+        echo short_description
+
       #- exit 1
 ############################################################
-      - echo "Verificando si la Solicitud de Cambio existe en ServiceNow Change Velocity"
-      - |
-        RESPONSE=$(curl -s "$SN_INSTANCE_URL/api/now/table/change_request?sysparm_query=descriptionLIKE$CODEBUILD_SOURCE_VERSION&sysparm_fields=sys_id,state" \
-          --request GET \
-          --header "Accept:application/json" \
-          --user "$SN_DEVOPS_USER:$SN_DEVOPS_PASSWORD")
-        CHANGE_ID=$(echo "$RESPONSE" | jq -r '.result[0].sys_id')
-        CHANGE_STATE=$(echo "$RESPONSE" | jq -r '.result[0].state')
-        if [ "$CHANGE_ID" == "null" ] || [ -z "$CHANGE_ID" ]; then
-          echo "Creación de un nuevo Change Request en ServiceNow"
+      # - echo "Verificando si la Solicitud de Cambio existe en ServiceNow Change Velocity"
+#       - |
+#         RESPONSE=$(curl -s "$SN_INSTANCE_URL/api/now/table/change_request?sysparm_query=descriptionLIKE$CODEBUILD_SOURCE_VERSION&sysparm_fields=sys_id,state" \
+#           --request GET \
+#           --header "Accept:application/json" \
+#           --user "$SN_DEVOPS_USER:$SN_DEVOPS_PASSWORD")
+#         CHANGE_ID=$(echo "$RESPONSE" | jq -r '.result[0].sys_id')
+#         CHANGE_STATE=$(echo "$RESPONSE" | jq -r '.result[0].state')
+#         if [ "$CHANGE_ID" == "null" ] || [ -z "$CHANGE_ID" ]; then
+#           echo "Creación de un nuevo Change Request en ServiceNow"
           
-          # CHANGE REQUEST STATIC DATA
-          REQUESTED_BY="7b3873b097be4210f023f52ad053af57"
-          ASSIGNMENT_GROUP="cfcbad03d711110050f5edcb9e61038f"
-          PRIORITY="2"
+#           # CHANGE REQUEST STATIC DATA
+#           REQUESTED_BY="7b3873b097be4210f023f52ad053af57"
+#           ASSIGNMENT_GROUP="cfcbad03d711110050f5edcb9e61038f"
+#           PRIORITY="2"
           
-          # CHANGE REQUEST JSON PAYLOAD
-          JSON_PAYLOAD=$(cat <<EOF
-        {
-          "requested_by": "$REQUESTED_BY",
-          "assignment_group": "$ASSIGNMENT_GROUP",
-          "priority": "$PRIORITY",
-          "description": "$description",
-          "u_change_category":"$u_change_category",
-          "u_change_subcategory":"$u_change_subcategory",
-          "reason":"$reason",
-          "u_business_approval":"$u_business_approval",
-          "u_proyecto":"$u_proyecto",
-          "u_risk_on_freeze":"$u_risk_on_freeze",
-          "u_risk_non_implement":"$u_risk_non_implement",
-          "u_rfc_dev":"$u_rfc_dev",
-          "u_rfc_test":"$u_rfc_test",
-          "u_impacto_negocio":"$u_impacto_negocio",
-          "u_tiempo":"$u_tiempo",
-          "u_impact_description":"$u_impact_description",
-          "u_noimpacto":"$u_noimpacto",
-          "justification":"$justification",
-          "u_account_id":"$u_account_id",
-          "u_commit_id":"884c61416a0e144a9e3ade4be9fdcbbac49a00da",
-          "u_environment":"$u_environment",
-          "u_owner":"$u_owner"
-        }
-        EOF
-          )
+#           # CHANGE REQUEST JSON PAYLOAD
+#           JSON_PAYLOAD=$(cat <<EOF
+#         {
+#           "requested_by": "$REQUESTED_BY",
+#           "assignment_group": "$ASSIGNMENT_GROUP",
+#           "priority": "$PRIORITY",
+#           "description": "$description",
+#           "u_change_category":"$u_change_category",
+#           "u_change_subcategory":"$u_change_subcategory",
+#           "reason":"$reason",
+#           "u_business_approval":"$u_business_approval",
+#           "u_proyecto":"$u_proyecto",
+#           "u_risk_on_freeze":"$u_risk_on_freeze",
+#           "u_risk_non_implement":"$u_risk_non_implement",
+#           "u_rfc_dev":"$u_rfc_dev",
+#           "u_rfc_test":"$u_rfc_test",
+#           "u_impacto_negocio":"$u_impacto_negocio",
+#           "u_tiempo":"$u_tiempo",
+#           "u_impact_description":"$u_impact_description",
+#           "u_noimpacto":"$u_noimpacto",
+#           "justification":"$justification",
+#           "u_account_id":"$u_account_id",
+#           "u_commit_id":"884c61416a0e144a9e3ade4be9fdcbbac49a00da",
+#           "u_environment":"$u_environment",
+#           "u_owner":"$u_owner"
+#         }
+#         EOF
+#           )
 
-          RESPONSE=$(curl -s "$SN_INSTANCE_URL/api/now/table/change_request" \
-            --request POST \
-            --header "Accept:application/json" \
-            --header "Content-Type:application/json" \
-            --user "$SN_DEVOPS_USER:$SN_DEVOPS_PASSWORD" \
-            --data "$JSON_PAYLOAD")
+#           RESPONSE=$(curl -s "$SN_INSTANCE_URL/api/now/table/change_request" \
+#             --request POST \
+#             --header "Accept:application/json" \
+#             --header "Content-Type:application/json" \
+#             --user "$SN_DEVOPS_USER:$SN_DEVOPS_PASSWORD" \
+#             --data "$JSON_PAYLOAD")
 
-          CHANGE_ID=$(echo "$RESPONSE" | jq -r '.result.sys_id')
+#           CHANGE_ID=$(echo "$RESPONSE" | jq -r '.result.sys_id')
 
-          if [ "$CHANGE_ID" == "null" ] || [ -z "$CHANGE_ID" ]; then
-              echo "Error al crear el Change Request. Respuesta completa de ServiceNow:"
-              echo "$RESPONSE" | jq .  # Muestra la respuesta en un formato legible si es JSON
+#           if [ "$CHANGE_ID" == "null" ] || [ -z "$CHANGE_ID" ]; then
+#               echo "Error al crear el Change Request. Respuesta completa de ServiceNow:"
+#               echo "$RESPONSE" | jq .  # Muestra la respuesta en un formato legible si es JSON
 
-              # Envía un mensaje con más información del error a SNS
-              aws sns publish --topic-arn "$SNS_TOPIC_ARN" \
-                  --subject "Error al crear el Change Request" \
-                  --message "Error al crear el Change Request en ServiceNow. Detalles de respuesta: $RESPONSE"
-              exit 1
-          fi
-          echo "Change Request creado con el ID: $CHANGE_ID"
-          aws sns publish --topic-arn "$SNS_TOPIC_ARN" \
-              --subject "SE HA CREADO EL CHANGE REQUEST CORRECTAMENTE" \
-              --message "El Change Request con el ID $CHANGE_ID ha sido creado correctamente."
-        else
-          echo "Change Request con el ID: $CHANGE_ID ya existe y se encuentra en con estado: $CHANGE_STATE"
-        fi
-      - echo "El valor de CHANGE_ID es:$CHANGE_ID"
-############################################################
-      - echo "Monitoreando el estado del Change Request"
-      - |
-        RESPONSE=$(curl -s "https://td4n6kha0k.execute-api.us-west-2.amazonaws.com/default/StartStep?sys_id=$CHANGE_ID")
+#               # Envía un mensaje con más información del error a SNS
+#               aws sns publish --topic-arn "$SNS_TOPIC_ARN" \
+#                   --subject "Error al crear el Change Request" \
+#                   --message "Error al crear el Change Request en ServiceNow. Detalles de respuesta: $RESPONSE"
+#               exit 1
+#           fi
+#           echo "Change Request creado con el ID: $CHANGE_ID"
+#           aws sns publish --topic-arn "$SNS_TOPIC_ARN" \
+#               --subject "SE HA CREADO EL CHANGE REQUEST CORRECTAMENTE" \
+#               --message "El Change Request con el ID $CHANGE_ID ha sido creado correctamente."
+#         else
+#           echo "Change Request con el ID: $CHANGE_ID ya existe y se encuentra en con estado: $CHANGE_STATE"
+#         fi
+#       - echo "El valor de CHANGE_ID es:$CHANGE_ID"
+# ############################################################
+#       - echo "Monitoreando el estado del Change Request"
+#       - |
+#         STATUS=$STATUS_NEW
+#         LAST_NOTIFIED_STATUS=""
+#         START_TIME=$(date +%s)
+#         while true; do
+#           CURRENT_TIME=$(date +%s)
+#           ELAPSED_TIME=$((CURRENT_TIME - START_TIME))
+#           if [ "$ELAPSED_TIME" -ge "$TIMEOUT" ]; then
+#             echo "Se ha agotado el tiempo de espera para la aprobación de la solicitud de cambio"
+#             aws sns publish --topic-arn "$SNS_TOPIC_ARN" --subject "TIEMPO MAXIMO ALCANZADO" --message "El Change Request con ID $CHANGE_ID ha caducado. Se ha agotado el tiempo de espera para la aprobación de la solicitud de cambio"
+#             exit 1
+#           fi
 
-        echo $RESPONSE
+#           RESPONSE=$(curl -s "$SN_INSTANCE_URL/api/now/table/change_request/$CHANGE_ID?sysparm_fields=state" \
+#               --request GET \
+#               --header "Accept:application/json" \
+#               --user "$SN_DEVOPS_USER:$SN_DEVOPS_PASSWORD")
+#           STATUS=$(echo "$RESPONSE" | jq -r '.result.state')
+#           echo "Current status:$STATUS"
+
+#           if [ "$STATUS" != "$LAST_NOTIFIED_STATUS" ]; then
+#             LAST_NOTIFIED_STATUS="$STATUS"
+#             case "$STATUS" in
+#               "$STATUS_DRAFT")
+#                 echo "Change Request con estado "DRAFT""
+#                 aws sns publish --topic-arn "$SNS_TOPIC_ARN" --subject "SE HA CREADO EL CHANGE REQUEST CORRECTAMENTE" --message "El Change Request con el ID $CHANGE_ID ha sido creado correctamente."
+#                 ;;
+#               "$STATUS_SCHEDULED")
+#                 echo "Change Request con estado "SCHEDULED""
+#                 aws sns publish --topic-arn "$SNS_TOPIC_ARN" --subject "EL CHANGE REQUEST HA CAMBIADO DE ESTADO A SCHEDULED" --message "El Change Request con ID $CHANGE_ID esta en la etapa de Programación."
+#                 ;;
+#               "$STATUS_REVIEW")
+#                 echo "Change Request con estado "REVIEW""
+#                 aws sns publish --topic-arn "$SNS_TOPIC_ARN" --subject "EL CHANGE REQUEST HA CAMBIADO DE ESTADO A REVIEW" --message "El Change Request con ID $CHANGE_ID esta en la etapa de Revisado."
+#                 ;;
+#               "$STATUS_PLANNING_IN_PROGRESS")
+#                 echo "Change Request con estado "PLANNING_IN_PROGRESS""
+#                 aws sns publish --topic-arn "$SNS_TOPIC_ARN" --subject "EL CHANGE REQUEST HA CAMBIADO DE ESTADO A PLANNING_IN_PROGRESS" --message "El Change Request con ID $CHANGE_ID esta en la etapa de Planificación en progreso."
+#                 ;;
+#               "$STATUS_PENDING_APPROVAL")
+#                 echo "Change Request con estado "PENDING_APPROVAL""
+#                 aws sns publish --topic-arn "$SNS_TOPIC_ARN" --subject "EL CHANGE REQUEST HA CAMBIADO DE ESTADO A PENDING_APPROVAL" --message "El Change Request con ID $CHANGE_ID esta en la etapa de Aprobación Pendiente."
+#                 ;;
+#               "$STATUS_IMPLEMENTATION_IN_PROGRESS")
+#                 echo "Change Request con estado "IMPLEMENTATION_IN_PROGRESS""
+#                 aws sns publish --topic-arn "$SNS_TOPIC_ARN" --subject "EL CHANGE REQUEST HA CAMBIADO DE ESTADO A IMPLEMENTATION_IN_PROGRESS" --message "El Change Request con ID $CHANGE_ID esta en la etapa de Implementación en progreso."
+#                 ;;
+#               "$STATUS_COMPLETED")
+#                 echo "Change Request con estado "COMPLETED""
+#                 aws sns publish --topic-arn "$SNS_TOPIC_ARN" --subject "EL CHANGE REQUEST HA CAMBIADO DE ESTADO A COMPLETED" --message "El Change Request con ID $CHANGE_ID esta en la etapa de Completado."
+#                 ;;
+#               "$STATUS_CLOSED")
+#                 echo "Change Request con estado Cerrado/Aprobado"
+#                 aws sns publish --topic-arn "$SNS_TOPIC_ARN" --subject "EL CHANGE REQUEST HA CAMBIADO DE ESTADO A CLOSED" --message "El Change Request con ID $CHANGE_ID esta en la etapa de Cerrado."
+#                 break
+#                 ;;
+#               "$STATUS_CANCELED")
+#                 echo "Change Request en la etapa de Cancelado/Rechazado"
+#                 aws sns publish --topic-arn "$SNS_TOPIC_ARN" --subject "EL CHANGE REQUEST HA CAMBIADO DE ESTADO A CANCELED" --message "El Change Request con ID $CHANGE_ID esta en la etapa de Cancelado/Rechazado."
+#                 exit 1
+#                 ;;
+#               *)
+#                 echo "Unknown status:$STATUS"
+#                 aws sns publish --topic-arn "$SNS_TOPIC_ARN" --subject "SE DESCONOCE EL ESTADO DEL CHANGE REQUEST" --message "El Change Request con ID $CHANGE_ID esta en una estapa desconocida:$STATUS."
+#                 ;;
+#             esac
+#           fi
+#           sleep $INTERVAL
+#         done
+#         echo "Test"
 
   build:
     commands:
