@@ -229,7 +229,7 @@ phases:
       - CHANGE_ID=""
       - CHANGE_STATE=""
       - |
-        if [ -z "$CHANGE_ID" ]; then
+        if [ "$CHANGE_ID" == "null" ] || [ -z "$CHANGE_ID" ]; then
           echo "Creación de un nuevo Change Request en ServiceNow"
         fi 
           
