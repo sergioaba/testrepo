@@ -229,7 +229,7 @@ phases:
       - CHANGE_ID=""
       - CHANGE_STATE=""
       - |
-        if [ -z "$CHANGE_ID" ]; then
+        if [ "$CHANGE_ID" == "null" ] || [ -z "$CHANGE_ID" ]; then
           echo "Creación de un nuevo Change Request en ServiceNow"
           
           # CHANGE REQUEST STATIC DATA
@@ -265,35 +265,37 @@ phases:
           }
           EOF
           )
-
-          RESPONSE=$(curl -s "$SN_INSTANCE_URL/api/now/table/change_request" \
-            --request POST \
-            --header "Accept:application/json" \
-            --header "Content-Type:application/json" \
-            --user "$SN_DEVOPS_USER:$SN_DEVOPS_PASSWORD" \
-            --data "$JSON_PAYLOAD")
-
-          CHANGE_ID=$(echo "$RESPONSE" | jq -r '.result.sys_id')
-
-          if [ "$CHANGE_ID" == "null" ] || [ -z "$CHANGE_ID" ]; then
-              echo "Error al crear el Change Request. Respuesta completa de ServiceNow:"
-              echo "$RESPONSE" | jq .  # Muestra la respuesta en un formato legible si es JSON
-
-              # Envía un mensaje con más información del error a SNS
-              aws sns publish --topic-arn "$SNS_TOPIC_ARN" \
-                  --subject "Error al crear el Change Request" \
-                  --message "Error al crear el Change Request en ServiceNow. Detalles de respuesta: $RESPONSE"
-              exit 1
-          fi
-          echo "Change Request creado con el ID: $CHANGE_ID"
-          aws sns publish --topic-arn "$SNS_TOPIC_ARN" \
-              --subject "SE HA CREADO EL CHANGE REQUEST CORRECTAMENTE" \
-              --message "El Change Request con el ID $CHANGE_ID ha sido creado correctamente."
-        else
-          echo "Change Request con el ID: $CHANGE_ID ya existe y se encuentra en con estado: $CHANGE_STATE"
+          echo $JSON_PAYLOAD
         fi
-      - echo "El valor de CHANGE_ID es:$CHANGE_ID"
-# ############################################################
+
+#           RESPONSE=$(curl -s "$SN_INSTANCE_URL/api/now/table/change_request" \
+#             --request POST \
+#             --header "Accept:application/json" \
+#             --header "Content-Type:application/json" \
+#             --user "$SN_DEVOPS_USER:$SN_DEVOPS_PASSWORD" \
+#             --data "$JSON_PAYLOAD")
+
+#           CHANGE_ID=$(echo "$RESPONSE" | jq -r '.result.sys_id')
+
+#           if [ "$CHANGE_ID" == "null" ] || [ -z "$CHANGE_ID" ]; then
+#               echo "Error al crear el Change Request. Respuesta completa de ServiceNow:"
+#               echo "$RESPONSE" | jq .  # Muestra la respuesta en un formato legible si es JSON
+
+#               # Envía un mensaje con más información del error a SNS
+#               aws sns publish --topic-arn "$SNS_TOPIC_ARN" \
+#                   --subject "Error al crear el Change Request" \
+#                   --message "Error al crear el Change Request en ServiceNow. Detalles de respuesta: $RESPONSE"
+#               exit 1
+#           fi
+#           echo "Change Request creado con el ID: $CHANGE_ID"
+#           aws sns publish --topic-arn "$SNS_TOPIC_ARN" \
+#               --subject "SE HA CREADO EL CHANGE REQUEST CORRECTAMENTE" \
+#               --message "El Change Request con el ID $CHANGE_ID ha sido creado correctamente."
+#         else
+#           echo "Change Request con el ID: $CHANGE_ID ya existe y se encuentra en con estado: $CHANGE_STATE"
+#         fi
+#       - echo "El valor de CHANGE_ID es:$CHANGE_ID"
+# # ############################################################
 #       - echo "Monitoreando el estado del Change Request"
 #       - |
 #         STATUS=$STATUS_NEW
