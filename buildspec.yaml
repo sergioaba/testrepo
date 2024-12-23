@@ -231,12 +231,12 @@ phases:
       - |
         if [ "$CHANGE_ID" == "null" ] || [ -z "$CHANGE_ID" ]; then
           echo "Creación de un nuevo Change Request en ServiceNow"
+          # CHANGE REQUEST STATIC DATA
+          REQUESTED_BY="7b3873b097be4210f023f52ad053af57"
+          ASSIGNMENT_GROUP="cfcbad03d711110050f5edcb9e61038f"
+          PRIORITY="2"
+          echo "fin"
         fi 
-          
-#           # CHANGE REQUEST STATIC DATA
-#           REQUESTED_BY="7b3873b097be4210f023f52ad053af57"
-#           ASSIGNMENT_GROUP="cfcbad03d711110050f5edcb9e61038f"
-#           PRIORITY="2"
           
 #           # CHANGE REQUEST JSON PAYLOAD
 #           JSON_PAYLOAD=$(cat <<EOF
