@@ -235,7 +235,15 @@ phases:
           REQUESTED_BY="7b3873b097be4210f023f52ad053af57"
           ASSIGNMENT_GROUP="cfcbad03d711110050f5edcb9e61038f"
           PRIORITY="2"
-          echo "fin"
+          # CHANGE REQUEST JSON PAYLOAD
+          JSON_PAYLOAD=$(cat <<EOF
+          {
+            "requested_by": "$REQUESTED_BY",
+            "assignment_group": "$ASSIGNMENT_GROUP"
+          }
+          EOF
+          )
+          echo "$JSON_PAYLOAD"
         fi 
           
 #           # CHANGE REQUEST JSON PAYLOAD
